@@ -173,4 +173,11 @@ contract Imperium is ERC20Interface{
             return true;
         }
 
+        function burn() public returns(bool){
+            icoState = getCurrentState();
+            require(icoState == State.afterEnd);
+            balances[founder] = 0;
+            return true;
+        }
+
     }
