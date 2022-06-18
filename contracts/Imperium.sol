@@ -133,4 +133,31 @@ contract Imperium is ERC20Interface{
                 return State.afterEnd;
             }
         }
+
+
+        event Invest(address investor, uint value, uint tokens);
+
+        function invest() payable public returns(bool){
+            icoState = getCurrentState();
+            require(icoState == State.running);
+
+            require(msg.value >= minInvestment && msg.value <= maxInvestment);
+            raisedAmount += msg.value;
+            require(raisedAmount <= hardCap);
+
+            uint tokens = msg.value / tokenPrice;
+
+            balances[msg.sender] += tokens; 
+            balances[founder] -= tokens;
+            deposit.transfer(msg.value);
+
+            emit Invest(msg.sender, msg.value, tokens);
+
+            return true;
+        }
+
+        receive() payable external{
+            invest(); // this function is automatically called when someone sends ETH to the contract's address
+        }
+
     }
