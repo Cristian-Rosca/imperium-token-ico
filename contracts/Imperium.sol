@@ -42,7 +42,7 @@ contract Imperium is ERC20Interface{
         return balances[tokenOwner];
     }
 
-    function transfer(address to, uint tokens) public override returns(bool success){
+    function transfer(address to, uint tokens) public virtual override returns(bool success){
         require(balances[msg.sender] >= tokens);
 
         balances[to] += tokens;
@@ -68,7 +68,7 @@ contract Imperium is ERC20Interface{
         // can also implement increaseAllowance and decreaseAllowance functions
     }
 
-    function transferFrom(address from, address to, uint tokens) external override returns (bool success){
+    function transferFrom(address from, address to, uint tokens) public virtual override returns (bool success){
         require(allowed[from][msg.sender] >= tokens);
         require(balances[from] >= tokens);
         balances[from] -= tokens;
@@ -158,6 +158,19 @@ contract Imperium is ERC20Interface{
 
         receive() payable external{
             invest(); // this function is automatically called when someone sends ETH to the contract's address
+        }
+
+        function transfer(address to, uint tokens) public override returns(bool success){
+            require(block.timestamp > tokenTradeStart);
+            Imperium.transfer(to, tokens);
+            // super.transfer(to, tokens); -> could also write this way
+            return true;
+        }
+
+        function transferFrom(address from, address to, uint tokens) public override returns (bool success){
+            require(block.timestamp > tokenTradeStart);
+            Imperium.transferFrom(from, to, tokens);
+            return true;
         }
 
     }
